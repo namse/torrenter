@@ -1,5 +1,7 @@
 torrent/
 *.torrent
+magnet/
+*.magnet
 
 # Created by https://www.gitignore.io/api/node
 

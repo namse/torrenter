@@ -1,14 +1,28 @@
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
+const fs = require('fs');
+
+fs.existsSync("magnet") || fs.mkdirSync("magnet");
 
 function fetchText(uri) {
   return fetch(uri)
   .then((response) => response.text());
 }
 
+function saveMagnets(pid, magnet) {
+  return new Promise((resolve, reject) => {
+    const dest = `magnet/${pid}.magnet`;
+    fs.writeFile(dest, magnet, (err) => {
+      if(err) {
+        return reject(err);
+      }
+      resolve();
+    });
+  });
+}
+
 function fetchMagnetsFromBTKU(pids) {
   const promises = [];
-  const magnets = [];
   const failedPids = [];
   pids.forEach(pid => {
     const param = encodeURI(`"${pid}"`);
@@ -22,7 +36,7 @@ function fetchMagnetsFromBTKU(pids) {
           console.log(`can't find magnet for pid:${pid}`);
           failedPids.push(pid);
         } else {
-          magnets.push(link);
+          saveMagnets(pid, link);
         }
       } else {
         console.log(`can't find magnet for pid:${pid}`);
@@ -32,7 +46,6 @@ function fetchMagnetsFromBTKU(pids) {
     promises.push(promise);
   });
   return Promise.all(promises).then(() => ({
-    magnets,
     failedPids,
   }));
 }

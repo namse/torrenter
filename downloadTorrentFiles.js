@@ -39,8 +39,10 @@ function downloadTorrentFilesFromNyaa(pids) {
         const link = a.attr('href');
         if (!link) {
           console.log(`can't find torrent for pid:${pid}`);
+          failedPids.push(pid);
         } else {
-          return downloadFile(pid, link);
+          console.log(link);
+          return downloadFile(pid, `https:${link}`);
         }
       } else {
         console.log(`can't find torrent for pid:${pid}`);

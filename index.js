@@ -7,12 +7,13 @@ fetchPids(name)
   console.log(pids);
   return fetchMagnets(pids);
 })
-.then(({magnets, failedPids}) => {
+.then(({failedPids}) => {
+  console.log('failed pids in magnet');
   console.log(failedPids);
   return downloadTorrentFiles(failedPids);
 })
 .then(({failedPids}) => {
-  console.log('failed pids');
+  console.log('failed pids in torrent file');
   console.log(failedPids);
 })
 .catch(err => console.log(err));
