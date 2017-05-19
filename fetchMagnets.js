@@ -29,19 +29,17 @@ function fetchMagnetsFromBTKU(pids) {
     const promise = fetchText(`http://ko.btku.org/q/${param}/?sort=hot`)
     .then(text => {
       const $ = cheerio.load(text);
-      const a = $('span.downLink a').next(); // first is QR. so I call next, it is Magnet.
-      if (a) {
-        const link = a.attr('href');
-        if (!link) {
-          console.log(`can't find magnet for pid:${pid}`);
-          failedPids.push(pid);
-        } else {
-          saveMagnets(pid, link);
-        }
-      } else {
-        console.log(`can't find magnet for pid:${pid}`);
+      const a = $('span.downLink a')[1]; // first is QR. so I call next, it is Magnet.
+      if (!a) {
         failedPids.push(pid);
+        return;
       }
+      const link = a.attribs.href;
+      if (!link) {
+        failedPids.push(pid);
+        return;
+      }
+      return saveMagnets(pid, link);
     });
     promises.push(promise);
   });
