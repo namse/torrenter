@@ -3,12 +3,9 @@ const fetchPids = require('./fetchPids');
 const fetchMagnets = require('./fetchMagnets');
 const downloadTorrentFiles = require('./downloadTorrentFiles');
 fetchPids(name)
-.then(pids => {
+.then((pids) => {
   console.log(`product id total number : ${pids.length}`);
-  return downloadTorrentFiles(pids);
-})
-.then((failedPids) => {
-  return fetchMagnets(failedPids);
+    return fetchMagnets(pids);
 })
 .then(({failedPids}) => {
   console.log(`failed pid total number : ${failedPids.length}`);

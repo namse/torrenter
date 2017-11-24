@@ -21,15 +21,32 @@ function saveMagnets(pid, magnet) {
   });
 }
 
+function extractMagnet(link) {
+  return fetchText(link)
+  .then((text) => {
+    let magnet = text.match(/magnet(.*?)"/)[0];
+    magnet = magnet.substring(0, magnet.length - 1);
+    return magnet;
+  })
+}
+
 function fetchMagnetsFromBTKU(pids) {
   const promises = [];
   const failedPids = [];
   pids.forEach(pid => {
     const param = encodeURI(`"${pid}"`);
-    const promise = fetchText(`http://ko.btku.org/q/${param}/?sort=hot`)
+    const promise = fetchText(`http://www.btmp4.net/search/${param}/?sort=hot`)
     .then(text => {
       const $ = cheerio.load(text);
-      const a = $('span.downLink a')[1]; // first is QR. so I call next, it is Magnet.
+      const as = $('a');
+      let a;
+      for (let i = 0; i < as.length; i += 1) {
+        const tempA = $('a')[i];
+        if (tempA.attribs.href.indexOf('http://www.btmp4.net/h/') >= 0) {
+          a = tempA;
+          break;
+        }
+      }
       if (!a) {
         failedPids.push(pid);
         return;
@@ -39,7 +56,8 @@ function fetchMagnetsFromBTKU(pids) {
         failedPids.push(pid);
         return;
       }
-      return saveMagnets(pid, link);
+      return extractMagnet(link)
+      .then((magnet) => saveMagnets(pid, magnet));
     });
     promises.push(promise);
   });
